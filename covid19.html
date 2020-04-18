@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+  <script src="https://unpkg.com/ag-grid-enterprise/dist/ag-grid-enterprise.min.noStyle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-balham.css">
+</head>
+<body>
+  <h1>Hello from ag-grid!</h1>
+  <button onclick="getSelectedRows()">Get Selected Rows</button>
+  <div id="myGrid" style="height: 600px;width:50;" class="ag-theme-balham"></div>
+
+  <script type="text/javascript" charset="utf-8">
+    // specify the columns
+    var columnDefs = [
+      {headerName: "Date", field: "date" },
+      {headerName: "no of cases", field: "dailyconfirmed" },
+      {headerName: "no of recoveries", field: "dailyrecovered" },
+      {headerName: "no of deaths", field: "dailydeceased"}
+    ];
+
+    // var autoGroupColumnDef = {
+    //     headerName: "Model",
+    //     field: "model",
+    //     cellRenderer:'agGroupCellRenderer',
+    //     cellRendererParams: {
+    //         checkbox: true
+    //     }
+    // }
+
+    // let the grid know which columns and what data to use
+    var gridOptions = {
+      columnDefs: columnDefs,
+     // autoGroupColumnDef: autoGroupColumnDef,
+      groupSelectsChildren: true,
+      rowSelection: 'multiple'
+    };
+
+  // lookup the container we want the Grid to use
+  var eGridDiv = document.querySelector('#myGrid');
+
+  // create the grid passing in the div to use together with the columns & data we want to use
+  new agGrid.Grid(eGridDiv, gridOptions);
+
+  agGrid.simpleHttpRequest({url: 'https://api.covid19india.org/data.json'}).then(function(data) {
+      gridOptions.api.setRowData(data.cases_time_series);
+  });
+
+  function getSelectedRows() {
+    const selectedNodes = gridOptions.api.getSelectedNodes()
+    const selectedData = selectedNodes.map( function(node) { return node.data })
+    const selectedDataStringPresentation = selectedData.map( function(node) { return node.make + ' ' + node.model }).join(', ')
+    alert('Selected nodes: ' + selectedDataStringPresentation);
+  }
+  </script>
+</body>
+</html>
